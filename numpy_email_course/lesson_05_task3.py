@@ -1,8 +1,19 @@
-# SuperFastPython.com
+#! /usr/bin/env python3
+#
 # initialize a numpy array in parallel with threads
+#   inspired by https://superfastpython.com/concurrent-numpy-7-day-course/
+#
+#   Aaron Heller <aaron.heller@sri.com>
+#   2 September 2024
+#
+# references:
+#   https://docs.python.org/3/library/concurrent.futures.html
+#   https://superfastpython.com/concurrent-numpy-7-day-course/
 
-# pylint: disable=missing-class-docstring, missing-module-docstring, missing-function-docstring
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-class-docstring, missing-function-docstring
 # pylint: disable=import-error
+
 
 import concurrent.futures
 import time
@@ -61,7 +72,14 @@ def test2(value, split, pool_size):
     # create the thread pool
     with concurrent.futures.ThreadPoolExecutor(pool_size) as exe:
         time_start = time.perf_counter()
-        fs = [exe.submit(d.fill, value) for d in data.reshape((-1, split, split))]
+        fs = [
+            exe.submit(d.fill, value)
+            for d in numpy.reshape(
+                data,
+                (-1, split, split),
+                copy=False,  # raise an exception on copy
+            )
+        ]
         # fs = [exe.submit(d.fill, value) for d in data.reshape((-1, split * split))]
         concurrent.futures.wait(fs)
         time_duration = time.perf_counter() - time_start
@@ -75,6 +93,6 @@ t0, c0 = test0(VALUE)
 
 t1, c1 = test1(VALUE, round(N / 4), 8)
 
-t2, c2 = test1(VALUE, round(N / 4), 8)
+t2, c2 = test2(VALUE, round(N / 16), 64)
 
 print(f"speedup = {t0 / t1:.3f}")
