@@ -7,6 +7,7 @@
 #   2 September 2024
 #
 # references:
+#   https://superfastpython.com/numpy-vs-gil/
 #   https://docs.python.org/3/library/concurrent.futures.html
 #   https://superfastpython.com/concurrent-numpy-7-day-course/
 
